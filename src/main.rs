@@ -1,16 +1,12 @@
-use multidl::{find_subsequence, tcp::download_part};
-
-use std::net::{TcpListener, TcpStream, ToSocketAddrs};
+use multidl::download;
+use std::env;
 
 fn main() {
-    let server_details = "example.com:80";
-    let server: Vec<_> = server_details
-        .to_socket_addrs()
-        .expect("Unable to resolve domain")
-        .collect();
-    println!("{:?}", server);
+    let args: Vec<String> = env::args().collect();
+    println!("{:?}", args);
 
-    // Even easier, if you want to connect right away:
-    let stream = TcpStream::connect(server_details).expect("Unable to connect to server");
-    // let listener = TcpListener::bind(server[1]).unwrap();
+    let server_details = &args[1];
+    let path = &args[2];
+
+    download(server_details, path)
 }

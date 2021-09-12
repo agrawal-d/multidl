@@ -9,6 +9,8 @@ pub struct HTTPMessage {
 
 impl HTTPMessage {
     pub fn new(raw_message: &str) -> HTTPMessage {
+        println!("Raw message while parsing \n`{}`\n", raw_message);
+
         let (headers, body) = raw_message.split_once("\r\n\r\n").unwrap();
         let lines = headers.lines().enumerate();
         let mut headers: HashMap<String, String> = HashMap::new();
