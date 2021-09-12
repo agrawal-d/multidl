@@ -13,6 +13,10 @@ ADDRESS_WITH_PORT - Can be IP address or a domain name. ( example 127.0.0.1:3000
 PATH_TO_FILE - Absoulte path to the file, including preceding slash. ( example / or /public/file.bin )
 ```
 
+# Sample Files
+
+A file `2-mb-file.txt` is in the repo for self hosting. Otherwise, checkout http://xcal1.vodafone.co.uk/.
+
 # License
 
 This software is licensed under GNU General Public License v3.0 or later.

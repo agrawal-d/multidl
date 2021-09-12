@@ -42,11 +42,11 @@ mod tests {
     #[test]
     fn parse_raw_message() {
         let http_message =
-            "HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\n Content-Length: 100\r\n\r\nSome content.\nAnd some more.";
+            "HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\nContent-Length: 100\r\n\r\nSome content.\nAnd some more.";
 
         let message = HTTPMessage::new(http_message);
         let message_str = format!("{:?}", message);
-        let expected_message_str = r#"HTTPMessage { start_line: "HTTP/1.1 200 OK", headers: {"Accept-Ranges": "bytes", " Content-Length": "100"}, body: [83, 111, 109, 101, 32, 99, 111, 110, 116, 101, 110, 116, 46, 10, 65, 110, 100, 32, 115, 111, 109, 101, 32, 109, 111, 114, 101, 46] }"#;
+        let expected_message_str = r#"HTTPMessage { start_line: "HTTP/1.1 200 OK", headers: {"Content-Length": "100", "Accept-Ranges": "bytes"}, body: [83, 111, 109, 101, 32, 99, 111, 110, 116, 101, 110, 116, 46, 10, 65, 110, 100, 32, 115, 111, 109, 101, 32, 109, 111, 114, 101, 46] }"#;
 
         assert_eq!(message_str, expected_message_str);
     }
