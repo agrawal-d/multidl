@@ -8,14 +8,11 @@ mod http_message;
 pub mod tcp;
 use std::fs;
 use std::path::PathBuf;
+use std::time::{Duration, Instant};
 use std::{cmp::min, str, thread};
 
 pub use crate::http_message::HTTPMessage;
 use crate::tcp::{download_part, head};
-
-/// Maximum number of bytes that can be downloaded by each thread, i.e.,
-/// max size of divisions of the target file.
-static DIVISIONS: usize = 409600;
 
 /// Find the fist instance of `needle` in `haystack`.
 pub fn find_subsequence<T>(haystack: &[T], needle: &[T]) -> Option<usize>
@@ -28,9 +25,10 @@ where
 }
 
 /// Download the file in the given server and path.
+
 pub fn download(server_details: &str, path: &str) {
     let head_req = head(&server_details, path);
-
+    let start = Instant::now();
     // Only proceed if byte-range downloads are supported by the server.
     if let Some(value) = head_req.headers.get("Accept-Ranges") {
         if value != "bytes" {
@@ -49,12 +47,21 @@ pub fn download(server_details: &str, path: &str) {
         let mut start_at = 0;
         let mut i = 0;
 
+        // Maximum number of bytes that can be downloaded by each thread, i.e.,
+        // max size of divisions of the target file.
+        let mut divisions: usize = 409600;
+
+        // Limit to 5 threads.
+        if content_length / divisions > 5 {
+            divisions = content_length / 5;
+        }
+
         // Keep spawning threads until all bytes are covered.
         while start_at < content_length {
             i += 1;
             let address = server_details.to_string();
             let path = path.to_string();
-            let end_at = min(start_at + DIVISIONS, content_length - 1);
+            let end_at = min(start_at + divisions, content_length - 1);
             println!(
                 "Downloading {} to {} bytes in thread {}",
                 start_at, end_at, i
@@ -73,6 +80,7 @@ pub fn download(server_details: &str, path: &str) {
             start_at = end_at + 1;
         }
 
+        // Merge buffers into one.
         for handle in threads {
             let data = handle.join().unwrap();
             buf.extend(data);
@@ -80,12 +88,22 @@ pub fn download(server_details: &str, path: &str) {
 
         assert_eq!(buf.len(), content_length);
 
+        // Save the file
         let srcdir = PathBuf::from("./data.bin");
-
         fs::write(&srcdir, buf).unwrap();
         println!(
             "Finished merging parts. File stored in {:?}.",
             fs::canonicalize(&srcdir).unwrap()
+        );
+
+        // Calculate statistics
+        let duration = start.elapsed();
+        let kb: f64 = 1024.0;
+        let size_in_mb = content_length as f64 / (kb * kb);
+        let mbps = size_in_mb / duration.as_secs_f64();
+        println!(
+            "Time elapsed: {:?} , average speed: {:.2} MiBps",
+            duration, mbps
         );
     } else {
         eprintln!("Mult-threaded downloads not supported for this request.");

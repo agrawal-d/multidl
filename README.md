@@ -4,7 +4,7 @@ Download a file using multiple threads in parallel for faster download speeds. U
 
 ## Usage
 
-```
+```bash
 Usage: multidl [--help] ADDRESS_WITH_PORT PATH_TO_FILE
 Download a file in multiple parts in parallel into data.bin.
 
@@ -15,7 +15,8 @@ PATH_TO_FILE - Absoulte path to the file, including preceding slash. ( example /
 
 # Sample Files
 
-A file `2-mb-file.txt` is in the repo for self hosting. Otherwise, checkout http://xcal1.vodafone.co.uk/.
+A file `2-mb-file.txt` is in the repo for self hosting. Otherwise, checkout http://xcal1.vodafone.co.uk/. So,
+a sample run command can be `cargo run 212.183.159.230:80 /10MB.zip`.
 
 # License
 
