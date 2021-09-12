@@ -4,7 +4,7 @@ Download a file using multiple threads in parallel for faster download speeds. U
 
 ## Usage
 
-```bash
+```
 Usage: multidl [--help] ADDRESS_WITH_PORT PATH_TO_FILE
 Download a file in multiple parts in parallel into data.bin.
 
