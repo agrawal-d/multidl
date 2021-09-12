@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+/// Parsed reprsentation of an HTTP message.
 #[derive(Debug)]
 pub struct HTTPMessage {
     pub start_line: String,
@@ -8,9 +9,8 @@ pub struct HTTPMessage {
 }
 
 impl HTTPMessage {
+    /// Parse a raw HTTP Message string into a struct.
     pub fn new(raw_message: &str) -> HTTPMessage {
-        println!("Raw message while parsing \n`{}`\n", raw_message);
-
         let (headers, body) = raw_message.split_once("\r\n\r\n").unwrap();
         let lines = headers.lines().enumerate();
         let mut headers: HashMap<String, String> = HashMap::new();

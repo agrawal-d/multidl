@@ -6,8 +6,10 @@ use std::{
 
 use crate::{find_subsequence, HTTPMessage};
 
+/// Size of the buffer used to store the incoming stream.
 static BUFFER_SIZE: usize = 409600;
 
+/// Perform an HTTP HEAD request to get metadata without the body.
 pub fn head(address: &str, path: &str) -> HTTPMessage {
     let mut stream = TcpStream::connect(address).expect("Unable to connect to server");
     let (host, _) = address.split_once(":").unwrap();
@@ -22,6 +24,7 @@ pub fn head(address: &str, path: &str) -> HTTPMessage {
     HTTPMessage::new(str::from_utf8(&buffer).unwrap())
 }
 
+/// Partially download a file in the given byte range.
 pub fn download_part(address: String, path: String, bytes_from: usize, bytes_to: usize) -> Vec<u8> {
     let mut stream = TcpStream::connect(&address).expect("Unable to connect to server");
     let (host, _) = address.split_once(":").unwrap();
@@ -39,14 +42,16 @@ pub fn download_part(address: String, path: String, bytes_from: usize, bytes_to:
 
     let mut first = true;
 
+    // Keep reading until all data is received.
     while content_consumed < body_size {
         let bytes_read = stream.read(&mut buffer).unwrap();
-        println!("Read {} bytes", bytes_read);
 
         if bytes_read == 0 {
-            panic!("WTF");
+            break;
         }
 
+        // If reading the stream for the first time, parse the headers, otherwise just append
+        // the buffer to body.
         if first {
             first = false;
             let loc_body_break = find_subsequence(&buffer, &body_break).unwrap();
@@ -61,8 +66,6 @@ pub fn download_part(address: String, path: String, bytes_from: usize, bytes_to:
             content_consumed += bytes_read;
             body.extend_from_slice(&buffer[0..bytes_read]);
         }
-
-        println!("Consumed {} bytes of total {}", content_consumed, body_size);
     }
 
     assert_eq!(body.len(), body_size);
